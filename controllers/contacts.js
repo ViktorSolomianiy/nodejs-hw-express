@@ -33,6 +33,7 @@ const getById = async (req, res) => {
 
 const add = async (req, res) => {
   const { error } = addSchema.validate(req.body);
+
   if (error) {
     HttpError(400, error.message);
   }
