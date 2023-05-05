@@ -7,13 +7,13 @@ const {
 } = require("../models/contacts");
 const { HttpError, ctrlWrapper } = require("../helpers");
 
-const Joi = require("joi");
+// const Joi = require("joi");
 
-const addSchema = Joi.object({
-  name: Joi.string().required(),
-  email: Joi.string().required(),
-  phone: Joi.string().required(),
-});
+// const addSchema = Joi.object({
+//   name: Joi.string().required(),
+//   email: Joi.string().required(),
+//   phone: Joi.string().required(),
+// });
 
 const getAll = async (req, res) => {
   const contacts = await listContacts();
@@ -31,12 +31,11 @@ const getById = async (req, res) => {
   res.json(contact);
 };
 
-const add = async (req, res) => {
-  const { error } = addSchema.validate(req.body);
-
-  if (error) {
-    HttpError(400, error.message);
-  }
+const add = async (req, res, next) => {
+  // const { error } = addSchema.validate(req.body);
+  // if (error) {
+  //   await HttpError(400, error.message);
+  // }
 
   const contact = await addContact(req.body);
 
@@ -44,10 +43,10 @@ const add = async (req, res) => {
 };
 
 const update = async (req, res) => {
-  const { error } = addSchema.validate(req.body);
-  if (error) {
-    HttpError(400, error.message);
-  }
+  // const { error } = await addSchema.validate(req.body);
+  // if (error) {
+  //   HttpError(400, error.message);
+  // }
 
   const { id } = req.params;
   const contact = await updateContact(id, req.body);
@@ -73,7 +72,7 @@ const remove = async (req, res) => {
 module.exports = {
   getAll: ctrlWrapper(getAll),
   getById: ctrlWrapper(getById),
-  add: ctrlWrapper(add),
+  add,
   update: ctrlWrapper(update),
   remove: ctrlWrapper(remove),
 };
