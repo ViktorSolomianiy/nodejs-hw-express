@@ -18,7 +18,7 @@ router.get("/:id", getById);
 
 router.post("/", validateBody(schema.addSchema), add);
 
-router.put("/:id", update);
+router.put("/:id", validateBody(schema.addSchema), update);
 
 router.delete("/:id", remove);
 
