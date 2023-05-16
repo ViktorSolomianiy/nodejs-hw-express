@@ -12,6 +12,7 @@ const getContacts = async (req, res) => {
   const { user } = req;
 
   const userContacts = await User.findById(user._id).populate("contacts", {
+    name: 1,
     email: 1,
     phone: 1,
   });
