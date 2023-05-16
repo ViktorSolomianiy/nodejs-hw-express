@@ -10,7 +10,6 @@ const getInfo = async (req, res) => {
 
 const getContacts = async (req, res) => {
   const { user } = req;
-  // const { contacts } = user;
 
   const userContacts = await User.findById(user._id).populate("contacts", {
     email: 1,
@@ -22,12 +21,9 @@ const getContacts = async (req, res) => {
 
 const addContact = async (req, res) => {
   const { user } = req;
-  // const { contacts } = user;
   const { id: contactId } = req.body;
 
   user.contacts.push({ _id: contactId });
-
-  // const validUniqContact = { $addToSet: { contacts: { $each: contacts } } };
 
   await User.findByIdAndUpdate(user._id, user);
 
