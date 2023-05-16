@@ -17,7 +17,7 @@ const userSchema = new Schema(
     },
     contacts: {
       type: [Types.ObjectId],
-      ref: "contacts",
+      ref: "contact",
     },
     subscription: {
       type: String,

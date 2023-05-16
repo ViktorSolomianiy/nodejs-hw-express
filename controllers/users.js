@@ -10,25 +10,28 @@ const getInfo = async (req, res) => {
 
 const getContacts = async (req, res) => {
   const { user } = req;
-  const { contacts } = user;
+  // const { contacts } = user;
 
-  res.json({ contacts });
+  const userContacts = await User.findById(user._id).populate("contacts", {
+    email: 1,
+    phone: 1,
+  });
+
+  res.json({ contacts: userContacts.contacts });
 };
 
 const addContact = async (req, res) => {
   const { user } = req;
-  const { contacts } = user;
+  // const { contacts } = user;
   const { id: contactId } = req.body;
 
-  user.contacts.push(contactId);
+  user.contacts.push({ _id: contactId });
 
-  const validUniqContact = { $addToSet: { contacts: { $each: contacts } } };
+  // const validUniqContact = { $addToSet: { contacts: { $each: contacts } } };
 
-  const updateUser = await User.findByIdAndUpdate(user._id, validUniqContact, {
-    new: true,
-  });
+  await User.findByIdAndUpdate(user._id, user);
 
-  res.json({ contacts: updateUser.contacts });
+  res.json({ contacts: user.contacts });
 };
 
 module.exports = {
