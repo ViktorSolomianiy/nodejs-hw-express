@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+const { Schema, model, Types } = require("mongoose");
 
 const { handleMongooseError } = require("../helpers");
 
@@ -14,6 +14,10 @@ const userSchema = new Schema(
       unique: true,
       match: /^[a-zA-Z0-9._]+@[a-zA-Z0-9.]+\.[a-zA-Z]{2,}$/,
       required: [true, "Email is required"],
+    },
+    contacts: {
+      type: [Types.ObjectId],
+      ref: "contacts",
     },
     subscription: {
       type: String,
