@@ -4,9 +4,10 @@ const gravatar = require("gravatar");
 const Jimp = require("jimp");
 const path = require("path");
 const fs = require("fs/promises");
+const { nanoid } = require("nanoid");
 
 const User = require("../models/user");
-const { HttpError, ctrlWrapper } = require("../helpers");
+const { HttpError, ctrlWrapper, sendMail } = require("../helpers");
 
 const { SECRET_KEY } = process.env;
 
@@ -14,6 +15,7 @@ const avatarsDir = path.join(__dirname, "../", "public", "avatars");
 
 const register = async (req, res) => {
   const { email, password } = req.body;
+  const verificationToken = nanoid();
 
   const user = await User.findOne({ email });
   if (user) throw HttpError(409, "Email in use");
@@ -25,6 +27,13 @@ const register = async (req, res) => {
     ...req.body,
     password: hashPassword,
     avatarURL,
+    verificationToken,
+  });
+
+  await sendMail({
+    to: email,
+    subject: "Please, confirm your email",
+    html: `<a href=http://localhost:3000/api/users/verify/${verificationToken}>Confirm your email</a>`,
   });
 
   res
@@ -38,6 +47,10 @@ const login = async (req, res) => {
   const user = await User.findOne({ email });
   const { email: userEmail, subscription } = user;
   if (!user) throw HttpError(401, "Email or password is wrong");
+
+  if (!user.verify) {
+    throw HttpError(401, "Email is not confirmed. Check you email");
+  }
 
   const passwordCompare = await bcrypt.compare(password, user.password);
   if (!passwordCompare) throw HttpError(401, "Email or password is wrong");

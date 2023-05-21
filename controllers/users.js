@@ -1,5 +1,5 @@
 const User = require("../models/user");
-const { HttpError, ctrlWrapper } = require("../helpers");
+const { HttpError, ctrlWrapper, sendMail } = require("../helpers");
 
 const getInfo = async (req, res) => {
   const { user } = req;
@@ -31,8 +31,42 @@ const addContact = async (req, res) => {
   res.json({ contacts: user.contacts });
 };
 
+const verifyEmail = async (req, res) => {
+  const { verificationToken } = req.params;
+
+  const user = await User.findOne({ verificationToken });
+
+  if (!user) throw HttpError(404, "User not found");
+
+  await User.findByIdAndUpdate(user._id, {
+    verify: true,
+    verificationToken: null,
+  });
+
+  res.json({ message: "Verification successful" });
+};
+
+const resendVerifyEmail = async (req, res) => {
+  const { email } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if (!user) throw HttpError(400, "Email not found");
+  if (user.verify) throw HttpError(400, "Verification has already been passed");
+
+  await sendMail({
+    to: email,
+    subject: "Please, confirm your email",
+    html: `<a href=http://localhost:3000/api/users/verify/${user.verificationToken}>Confirm your email</a>`,
+  });
+
+  res.json({ message: "Verification email sent" });
+};
+
 module.exports = {
   getInfo: ctrlWrapper(getInfo),
   getContacts: ctrlWrapper(getContacts),
   addContact: ctrlWrapper(addContact),
+  verifyEmail: ctrlWrapper(verifyEmail),
+  resendVerifyEmail: ctrlWrapper(resendVerifyEmail),
 };
